@@ -19,3 +19,5 @@ git clone https://github.com/chrichriGeorgie/Lab1-LOG8415E.git
 cd ./Lab1-LOG8415E/web-app/
 
 # Starting the docker container
+sudo docker build --build-arg MachineId=12345 --tag flask-docker .
+sudo docker run -p 5000:5000 flask-docker
