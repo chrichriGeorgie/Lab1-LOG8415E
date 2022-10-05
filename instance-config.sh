@@ -14,3 +14,8 @@ echo \
 sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y
 
+# Pulling the code from the git repository
+git clone https://github.com/chrichriGeorgie/Lab1-LOG8415E.git
+cd ./Lab1-LOG8415E/web-app/
+
+# Starting the docker container
