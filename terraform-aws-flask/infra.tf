@@ -17,12 +17,47 @@ resource "aws_instance" "m4_instance" {
   count         = 5
   ami           = "ami-0149b2da6ceec4bb0"
   instance_type = "M4.large"
+  availability_zone = "us-east-1"
 }
 
 resource "aws_instance" "t2_instance" {
   count         = 4
   ami           = "ami-0149b2da6ceec4bb0"
   instance_type = "T2.large"
+  availability_zone = "us-east-1"
+}
+
+resource "aws_vpc" "cluster1-vpc" {
+  cidr_block = "10.0.0.0/16"
+}
+resource "aws_vpc" "cluster2-vpc" {
+  cidr_block = "10.1.0.0/16"
+}
+
+resource "aws_lb_target_group" "cluster1-target" {
+  name     = "tf-example-lb-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.cluster1-vpc.id
+}
+
+resource "aws_lb_target_group" "cluster2-target" {
+  name     = "tf-example-lb-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.cluster2-vpc.id
+}
+
+resource "aws_lb_target_group_attachment" "attachments-cluster1-m4" {
+  count = length(aws_instance.m4_instance)
+  target_group_arn = aws_lb_target_group.cluster1-target.arn
+  target_id = aws_instance.m4_instance[count.index].id
+}
+
+resource "aws_lb_target_group_attachment" "attachments-cluster2-t2" {
+  count = length(aws_instance.t2_instance)
+  target_group_arn = aws_lb_target_group.cluster2-target.arn
+  target_id = aws_instance.t2_instance[count.index].id
 }
 
 resource "aws_elb" "load-balancer" {
