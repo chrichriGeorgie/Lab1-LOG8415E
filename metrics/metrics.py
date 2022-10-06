@@ -52,59 +52,6 @@ class CloudWatchWrapper:
         else:
             return metric_iter
 
-    def put_metric_data(self, namespace, name, value, unit):
-        """
-        Sends a single data value to CloudWatch for a metric. This metric is given
-        a timestamp of the current UTC time.
-
-        :param namespace: The namespace of the metric.
-        :param name: The name of the metric.
-        :param value: The value of the metric.
-        :param unit: The unit of the metric.
-        """
-        try:
-            metric = self.cloudwatch_resource.Metric(namespace, name)
-            metric.put_data(
-                Namespace=namespace,
-                MetricData=[{
-                    'MetricName': name,
-                    'Value': value,
-                    'Unit': unit
-                }]
-            )
-            logger.info("Put data for metric %s.%s", namespace, name)
-        except ClientError:
-            logger.exception("Couldn't put data for metric %s.%s", namespace, name)
-            raise
-
-    def put_metric_data_set(self, namespace, name, timestamp, unit, data_set):
-        """
-        Sends a set of data to CloudWatch for a metric. All of the data in the set
-        have the same timestamp and unit.
-
-        :param namespace: The namespace of the metric.
-        :param name: The name of the metric.
-        :param timestamp: The UTC timestamp for the metric.
-        :param unit: The unit of the metric.
-        :param data_set: The set of data to send. This set is a dictionary that
-                         contains a list of values and a list of corresponding counts.
-                         The value and count lists must be the same length.
-        """
-        try:
-            metric = self.cloudwatch_resource.Metric(namespace, name)
-            metric.put_data(
-                Namespace=namespace,
-                MetricData=[{
-                    'MetricName': name,
-                    'Timestamp': timestamp,
-                    'Values': data_set['values'],
-                    'Counts': data_set['counts'],
-                    'Unit': unit}])
-            logger.info("Put data set for metric %s.%s.", namespace, name)
-        except ClientError:
-            logger.exception("Couldn't put data set for metric %s.%s.", namespace, name)
-            raise
-
     def get_metric_statistics(self, namespace, name, start, end, period, stat_types):
         """
         Gets statistics for a metric within a specified time span. Metrics are grouped
