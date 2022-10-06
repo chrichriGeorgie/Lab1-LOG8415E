@@ -16,9 +16,8 @@ aws configure set aws_session_token $aws_session_token
 
 #Terraform deploying AWS Infrastructure
 cd ../terraform-aws-flask
-#terraform apply -auto-approve
+terraform apply -auto-approve
 cd ..
-ls
 
 #Docker Clients startup
 
