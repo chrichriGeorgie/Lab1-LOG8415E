@@ -14,9 +14,9 @@ provider "aws" {
 }
 
 resource "aws_instance" "m4_instance" {
-  count         = 5
-  ami           = "ami-0149b2da6ceec4bb0"
-  instance_type = "M4.large"
+  count             = 5
+  ami               = "ami-0149b2da6ceec4bb0"
+  instance_type     = "M4.large"
   availability_zone = "us-east-1"
   user_data = templatefile("./instance-config.sh.tftpl", {
     number = count.index
@@ -24,9 +24,9 @@ resource "aws_instance" "m4_instance" {
 }
 
 resource "aws_instance" "t2_instance" {
-  count         = 4
-  ami           = "ami-0149b2da6ceec4bb0"
-  instance_type = "T2.large"
+  count             = 4
+  ami               = "ami-0149b2da6ceec4bb0"
+  instance_type     = "T2.large"
   availability_zone = "us-east-1"
   user_data = templatefile("./instance-config.sh.tftpl", {
     number = count.index + 5
@@ -48,36 +48,36 @@ resource "aws_lb_target_group" "cluster2-target" {
 }
 
 resource "aws_lb_target_group_attachment" "attachments-cluster1-m4" {
-  count = length(aws_instance.m4_instance)
+  count            = length(aws_instance.m4_instance)
   target_group_arn = aws_lb_target_group.cluster1-target.arn
-  target_id = aws_instance.m4_instance[count.index].id
+  target_id        = aws_instance.m4_instance[count.index].id
 }
 
 resource "aws_lb_target_group_attachment" "attachments-cluster2-t2" {
-  count = length(aws_instance.t2_instance)
+  count            = length(aws_instance.t2_instance)
   target_group_arn = aws_lb_target_group.cluster2-target.arn
-  target_id = aws_instance.t2_instance[count.index].id
+  target_id        = aws_instance.t2_instance[count.index].id
 }
 
 resource "aws_lb" "load-balancer" {
-  name = "flask-load-balancer"
-  internal        = false
-  ip_address_type = "ipv4"
+  name               = "flask-load-balancer"
+  internal           = false
+  ip_address_type    = "ipv4"
   load_balancer_type = "application"
-  security_groups = [aws_security_group.flask_sg.id]
-  subnets = [aws_subnet.cluster1_subnet.id, aws_subnet.cluster2_subnet.id]
+  security_groups    = [aws_security_group.flask_sg.id]
+  subnets            = [aws_subnet.cluster1_subnet.id, aws_subnet.cluster2_subnet.id]
 }
 
 resource "aws_lb_listener" "listener_http" {
   load_balancer_arn = aws_lb.load-balancer.arn
-  port = "80"
-  protocol = "http"
+  port              = "80"
+  protocol          = "http"
   default_action {
     type = "fixed-response"
     fixed_response {
       content_type = "text/plain"
       message_body = "No destination specified or you don't know what you're doing."
-      status_code =  "404"
+      status_code  = "404"
     }
   }
 }
