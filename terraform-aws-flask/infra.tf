@@ -27,22 +27,18 @@ resource "aws_instance" "t2_instance" {
   availability_zone = "us-east-1"
 }
 
-resource "aws_vpc" "cluster-vpc" {
-  cidr_block = "10.0.0.0/16"
-}
-
 resource "aws_lb_target_group" "cluster1-target" {
   name     = "tf-example-lb-tg"
   port     = 5000
   protocol = "HTTP"
-  vpc_id   = aws_vpc.cluster-vpc.id
+  vpc_id   = aws_vpc.vpc.id
 }
 
 resource "aws_lb_target_group" "cluster2-target" {
   name     = "tf-example-lb-tg"
   port     = 5000
   protocol = "HTTP"
-  vpc_id   = aws_vpc.cluster-vpc.id
+  vpc_id   = aws_vpc.vpc.id
 }
 
 resource "aws_lb_target_group_attachment" "attachments-cluster1-m4" {
@@ -59,6 +55,11 @@ resource "aws_lb_target_group_attachment" "attachments-cluster2-t2" {
 
 resource "aws_lb" "load-balancer" {
   name = "flask-load-balancer"
+  internal        = false
+  ip_address_type = "ipv4"
+  load_balancer_type = "application"
+  security_groups = [aws_security_group.flask_sg.id]
+  subnets = [aws_subnet.cluster1_subnet.id, aws_subnet.cluster2_subnet.id]
 }
 
 resource "aws_lb_listener" "listener_http" {
@@ -108,3 +109,4 @@ resource "aws_lb_listener_rule" "to-cluster-2" {
     }
   }
 }
+
