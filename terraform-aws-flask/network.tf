@@ -1,8 +1,14 @@
+# LOG8415E - Assignment 1
+# network.tf
+# Terraform configuration relative to networking configuration
+
+# Custom virtual private cloud for private addresses behind the load balancer
 resource "aws_vpc" "vpc" {
   cidr_block         = "10.0.0.0/16"
   enable_dns_support = true
 }
 
+# Defining one subnet per target group to satisfy the requirement to have machines in us-east-1a et 1b
 resource "aws_subnet" "cluster1_subnet" {
   vpc_id            = aws_vpc.vpc.id
   cidr_block        = "10.0.1.0/24"
