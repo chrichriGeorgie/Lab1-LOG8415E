@@ -18,6 +18,9 @@ resource "aws_instance" "m4_instance" {
   ami           = "ami-0149b2da6ceec4bb0"
   instance_type = "M4.large"
   availability_zone = "us-east-1"
+  user_data = templatefile("./instance-config.sh.tftpl", {
+    number = count.index
+  })
 }
 
 resource "aws_instance" "t2_instance" {
@@ -25,6 +28,9 @@ resource "aws_instance" "t2_instance" {
   ami           = "ami-0149b2da6ceec4bb0"
   instance_type = "T2.large"
   availability_zone = "us-east-1"
+  user_data = templatefile("./instance-config.sh.tftpl", {
+    number = count.index + 5
+  })
 }
 
 resource "aws_lb_target_group" "cluster1-target" {
