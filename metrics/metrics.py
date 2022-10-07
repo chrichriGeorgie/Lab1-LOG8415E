@@ -14,6 +14,7 @@ from pprint import pprint
 import random
 import time
 import boto3
+import json
 from botocore.exceptions import ClientError
 
 logger = logging.getLogger(__name__)
@@ -82,10 +83,38 @@ class CloudWatchWrapper:
         else:
             return stats
 
+def find_cluster_by_name(name, dict):
+    i = 0
+
+    for resource in dict['resources']:
+        for key, value in resource.items():
+            if key == 'name':
+                if value == name:
+                    return dict['resources'][i]
+        i = i + 1
 
 
 def show_results():
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+
+    f = open('../terraform-aws-flask/terraform.tfstate.backup', 'r')
+    data = f.read()
+
+    dict = json.loads(data)
+
+    cluster1 = find_cluster_by_name('attachments-cluster1-m4', dict)['instances']
+    cluster1_id = cluster1[0]['attributes']['target_group_arn'].split(':')[-1]
+
+    cluster2 = find_cluster_by_name('attachments-cluster2-t2', dict)['instances']
+    cluster2_id = cluster2[0]['attributes']['target_group_arn'].split(':')[-1]
+
+    cluster1_instances_id = []
+    for instance in cluster1:
+        cluster1_instances_id.append(instance['attributes']['target_id'])
+
+    cluster2_instances_id = []
+    for instance in cluster2:
+        cluster2_instances_id.append(instance['attributes']['target_id'])
 
     cw_wrapper = CloudWatchWrapper(boto3.resource('cloudwatch'))
 
