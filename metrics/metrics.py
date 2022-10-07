@@ -53,7 +53,7 @@ class CloudWatchWrapper:
         else:
             return metric_iter
 
-    def get_metric_statistics(self, namespace, name, start, end, period, stat_types):
+    def get_metric_statistics(self, namespace, name, dimensions, start, end, period, stat_types):
         """
         Gets statistics for a metric within a specified time span. Metrics are grouped
         into the specified period.
@@ -74,7 +74,7 @@ class CloudWatchWrapper:
         try:
             metric = self.cloudwatch_resource.Metric(namespace, name)
             stats = metric.get_statistics(
-                StartTime=start, EndTime=end, Period=period, Statistics=stat_types)
+                Dimensions=dimensions, StartTime=start, EndTime=end, Period=period, Statistics=stat_types)
             logger.info(
                 "Got %s statistics for %s.", len(stats['Datapoints']), stats['Label'])
         except ClientError:
@@ -83,7 +83,7 @@ class CloudWatchWrapper:
         else:
             return stats
 
-def find_cluster_by_name(name, dict):
+def find_resource_by_name(name, dict):
     i = 0
 
     for resource in dict['resources']:
@@ -93,20 +93,23 @@ def find_cluster_by_name(name, dict):
                     return dict['resources'][i]
         i = i + 1
 
-
 def show_results():
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+    start = datetime.utcnow() - timedelta(days=1)
+    end = datetime.utcnow()
+    period = 60 * 60 * 24
 
     f = open('../terraform-aws-flask/terraform.tfstate.backup', 'r')
     data = f.read()
-
     dict = json.loads(data)
 
-    cluster1 = find_cluster_by_name('attachments-cluster1-m4', dict)['instances']
-    cluster1_id = cluster1[0]['attributes']['target_group_arn'].split(':')[-1]
+    load_balancer_id = find_resource_by_name('load-balancer', dict)['instances'][0]['attributes']['arn_suffix']
+    load_balancer_dimension = {'Name': 'LoadBalancer', 'Value': load_balancer_id}
 
-    cluster2 = find_cluster_by_name('attachments-cluster2-t2', dict)['instances']
-    cluster2_id = cluster2[0]['attributes']['target_group_arn'].split(':')[-1]
+    cluster1 = find_resource_by_name('attachments-cluster1-m4', dict)['instances']
+    cluster1_id = find_resource_by_name('cluster1-target', dict)['instances'][0]['attributes']['arn_suffix']
+
+    cluster2 = find_resource_by_name('attachments-cluster2-t2', dict)['instances']
+    cluster2_id = find_resource_by_name('cluster2-target', dict)['instances'][0]['attributes']['arn_suffix']
 
     cluster1_instances_id = []
     for instance in cluster1:
@@ -128,11 +131,63 @@ def show_results():
     print('-'*80)
     print('\n')
 
+    request_count1 = cw_wrapper.get_metric_statistics('AWS/ApplicationELB', 'RequestCount', [{'Name': 'TargetGroup', 'Value': cluster1_id}, load_balancer_dimension], start, end, period, ['Sum'])
+    print("Request for cluster 1")
+    print(f"Total: {request_count1['Datapoints'][0]['Sum']}")
+
+    request_2xx_1 = cw_wrapper.get_metric_statistics('AWS/ApplicationELB', 'HTTPCode_Target_2XX_Count', [{'Name': 'TargetGroup', 'Value': cluster1_id}, load_balancer_dimension], start, end, period, ['Sum'])
+    nbr_2xx_1 = 0 if len(request_2xx_1['Datapoints']) == 0 else request_2xx_1['Datapoints'][0]['Sum']
+    print(f"Succesful: {nbr_2xx_1}")
+
+    request_4xx_1 = cw_wrapper.get_metric_statistics('AWS/ApplicationELB', 'HTTPCode_Target_4XX_Count', [{'Name': 'TargetGroup', 'Value': cluster1_id}, load_balancer_dimension], start, end, period, ['Sum'])
+    request_5xx_1 = cw_wrapper.get_metric_statistics('AWS/ApplicationELB', 'HTTPCode_Target_5XX_Count', [{'Name': 'TargetGroup', 'Value': cluster1_id}, load_balancer_dimension], start, end, period, ['Sum'])
+    nbr_4xx_1 = 0 if len(request_4xx_1['Datapoints']) == 0 else request_4xx_1['Datapoints'][0]['Sum']
+    nbr_5xx_1 = 0 if len(request_5xx_1['Datapoints']) == 0 else request_5xx_1['Datapoints'][0]['Sum']
+    nbr_request_failed1 = nbr_4xx_1 + nbr_5xx_1
+    print(f"Failed: {nbr_request_failed1}\n")
+
+    response_time1 = cw_wrapper.get_metric_statistics('AWS/ApplicationELB', 'TargetResponseTime', [{'Name': 'TargetGroup', 'Value': cluster1_id}, load_balancer_dimension], start, end, period, ['Average'])
+    response_time_avg1 = "Unavailabe" if len(response_time1['Datapoints']) == 0 else str(response_time1['Datapoints'][0]['Average'])
+    print(f"Response time for cluster 1: {response_time_avg1}\n")
+
+
+    for id in cluster1_instances_id:
+        cpu_utilization = cw_wrapper.get_metric_statistics('AWS/EC2', 'CPUUtilization', [{'Name': 'InstanceId', 'Value': id}], start, end, period, ['Minimum', 'Maximum', 'Average'])
+        print(f"CPU Utilization for machine: {id}")
+        print(f"Minimum: {cpu_utilization['Datapoints'][0]['Minimum']}")
+        print(f"Maximum: {cpu_utilization['Datapoints'][0]['Maximum']}")
+        print(f"Average: {cpu_utilization['Datapoints'][0]['Average']}\n")
+        
     print('-'*80)
     print("Cluster 2 results")
     print('-'*80)
     print('\n')
 
+    request_count2 = cw_wrapper.get_metric_statistics('AWS/ApplicationELB', 'RequestCount', [{'Name': 'TargetGroup', 'Value': cluster2_id}, load_balancer_dimension], start, end, period, ['Sum'])
+    print("Request for cluster 2")
+    print(f"Total: {request_count2['Datapoints'][0]['Sum']}")
+
+    request_2xx_2 = cw_wrapper.get_metric_statistics('AWS/ApplicationELB', 'HTTPCode_Target_2XX_Count', [{'Name': 'TargetGroup', 'Value': cluster2_id}, load_balancer_dimension], start, end, period, ['Sum'])
+    nbr_2xx_2 = 0 if len(request_2xx_2['Datapoints']) == 0 else request_2xx_2['Datapoints'][0]['Sum']
+    print(f"Succesful: {nbr_2xx_2}")
+
+    request_4xx_2 = cw_wrapper.get_metric_statistics('AWS/ApplicationELB', 'HTTPCode_Target_4XX_Count', [{'Name': 'TargetGroup', 'Value': cluster2_id}, load_balancer_dimension], start, end, period, ['Sum'])
+    request_5xx_2 = cw_wrapper.get_metric_statistics('AWS/ApplicationELB', 'HTTPCode_Target_5XX_Count', [{'Name': 'TargetGroup', 'Value': cluster2_id}, load_balancer_dimension], start, end, period, ['Sum'])
+    nbr_4xx_2 = 0 if len(request_4xx_2['Datapoints']) == 0 else request_4xx_2['Datapoints'][0]['Sum']
+    nbr_5xx_2 = 0 if len(request_5xx_2['Datapoints']) == 0 else request_5xx_2['Datapoints'][0]['Sum']
+    nbr_request_failed2 = nbr_4xx_2 + nbr_5xx_2
+    print(f"Failed: {nbr_request_failed2}\n")
+
+    response_time2 = cw_wrapper.get_metric_statistics('AWS/ApplicationELB', 'TargetResponseTime', [{'Name': 'TargetGroup', 'Value': cluster2_id}, load_balancer_dimension], start, end, period, ['Average'])
+    response_time_avg2 = "Unavailabe" if len(response_time2['Datapoints']) == 0 else str(response_time2['Datapoints'][0]['Average'])
+    print(f"Response time for cluster 2: {response_time_avg2}\n")
+
+    for id in cluster2_instances_id:
+        cpu_utilization = cw_wrapper.get_metric_statistics('AWS/EC2', 'CPUUtilization', [{'Name': 'InstanceId', 'Value': id}], datetime.utcnow() - timedelta(days=1), datetime.utcnow(), 600, ['Minimum', 'Maximum', 'Average'])
+        print(f"CPU Utilization for machine: {id}")
+        print(f"Minimum: {cpu_utilization['Datapoints'][0]['Minimum']}")
+        print(f"Maximum: {cpu_utilization['Datapoints'][0]['Maximum']}")
+        print(f"Average: {cpu_utilization['Datapoints'][0]['Average']}\n")
 
 if __name__ == '__main__':
     show_results()
