@@ -1,18 +1,8 @@
-import enum
+import sys
 from threading import Thread
 import requests
-import re
 import logging
 import time
-
-#Retrieve the URL of the load balancer to make subsequent requests
-def get_lb_url():
-    regex = re.compile(".+us-east-1\.elb\.amazonaws\.com\",")
-    for i, line in enumerate(open('../terraform-aws-flask/terraform.tfstate')):
-        for match in re.finditer(regex, line):
-            address = match.group().__str__().strip()[13:-2]
-    return address
-
 
 def make_1000_sequentially(cluster, address):
     for x in range(10):
@@ -59,7 +49,7 @@ if __name__ == "__main__":
     logging.basicConfig(format=format, level=logging.INFO,
                         datefmt="%H:%M:%S")
 
-    address = get_lb_url()
+    address = sys.argv[1]
     logging.info("Loadbalancer url: {}".format(address))
 
     threads = list()
