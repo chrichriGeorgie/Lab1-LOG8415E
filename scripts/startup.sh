@@ -20,6 +20,15 @@ terraform apply -auto-approve
 cd ..
 
 #Docker Clients startup
+cd ./bonus-query-scripts
+
+#We must first retrieve the load-balancer url to give to client container.
+urlString='python3 url_retriver.py'
+
+#We then create the container and run it with $urlString as an argument
+sudo docker build --tag query_maker .
+sudo dockr run query_maker $urlString
+
 
 
 #Calls for metrics ?
