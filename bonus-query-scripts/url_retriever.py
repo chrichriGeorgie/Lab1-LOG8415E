@@ -1,3 +1,7 @@
+# LOG8415E - Assignment 1
+# url_retriver.py
+# Python file to get the url of the load balancer
+
 import re
 #Retrieve the URL of the load balancer to make subsequent requests
 def get_lb_url():

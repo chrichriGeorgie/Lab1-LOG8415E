@@ -51,7 +51,7 @@ sudo docker run -it -e AWS_DEFAULT_REGION=us-east-1 \
  -e AWS_SESSION_TOKEN=$aws_session_token \
  metrics
 
- #Clean up instances
+#Clean up instances
 cd ../terraform-aws-flask
 echo Cleaning instances...
 rm -f destroy.txt

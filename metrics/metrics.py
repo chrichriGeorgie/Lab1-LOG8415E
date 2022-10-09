@@ -63,6 +63,7 @@ class CloudWatchWrapper:
         else:
             return stats
 
+# Function that finds a desired resource by name in a JSON dictionnary
 def find_resource_by_name(name, dict):
     i = 0
 
@@ -73,6 +74,7 @@ def find_resource_by_name(name, dict):
                     return dict['resources'][i]
         i = i + 1
 
+# Function that prints all metrics results
 def show_results():
     # Variables used when getting the metrics
     start = datetime.utcnow() - timedelta(days=1)
