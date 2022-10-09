@@ -1,3 +1,4 @@
+import re
 #Retrieve the URL of the load balancer to make subsequent requests
 def get_lb_url():
     regex = re.compile(".+us-east-1\.elb\.amazonaws\.com\",")

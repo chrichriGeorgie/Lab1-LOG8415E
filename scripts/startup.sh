@@ -23,12 +23,12 @@ cd ..
 cd ./bonus-query-scripts
 
 #We must first retrieve the load-balancer url to give to client container.
-urlString='python3 url_retriver.py'
+echo Retrieving load balancer url :
+urlString=$( python3 url_retriever.py)
+echo $urlString
 
 #We then create the container and run it with $urlString as an argument
-sudo docker build --tag query_maker .
-sudo dockr run query_maker $urlString
+ sudo docker build --tag query_maker .
+ sudo docker run -it query_maker $urlString
 
-
-
-#Calls for metrics ?
+#Display metrics

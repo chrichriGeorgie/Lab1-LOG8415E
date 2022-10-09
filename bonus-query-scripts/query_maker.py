@@ -5,13 +5,11 @@ import logging
 import time
 
 def make_1000_sequentially(cluster, address):
-    for x in range(10):
-        print('t1 r '+x.__str__())
+    for x in range(1000):
         requests.get('http://'+address+cluster)
 
 def make_500_sequentially(cluster, address):
     for x in range(500):
-        print('t2 r '+x.__str__())
         requests.get('http://'+address+cluster)
 
 def thread_1000(cluster, address):
