@@ -2,7 +2,7 @@
 Github repository for the first assignment of the LOG8415E class. Made by: Jimmy Bell, Jérôme Cléris, Louis-Alexandre Hébert and Christophe St-Georges
 
 # Run the code
-Before executing the startu.sh script, verify that you have the lastest version of the AWS CLI on your machine. Terraform 1.3.1 and Python 3 must also be installed.
+Before executing the startu.sh script, verify that you have the lastest version of the AWS CLI on your machine. Terraform 1.3.1, Docker and Python 3 must also be installed.
 
 Make sure to give the rights permission to the start up script. It can be done with the "chmod +x ./scripts/startup.sh" command.
 
