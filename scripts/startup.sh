@@ -38,8 +38,8 @@ sudo docker build --tag query_maker .
 sudo docker run -it query_maker $urlString
 
 #Sleeping to be sure every metrics is collected
-echo "Waiting 30 seconds for metrics collection"
-sleep 30
+echo "Waiting 60 seconds for metrics collection"
+sleep 60
 
 #Display metrics
 cd ../metrics
