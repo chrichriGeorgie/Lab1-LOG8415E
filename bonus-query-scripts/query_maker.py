@@ -17,14 +17,14 @@ def thread_1000(cluster, address):
     make_1000_sequentially(cluster, address)
     logging.info("Thread 1 %s: finishing 1000 requests", cluster)
 
-def thread_500_sleep_500(cluster, address):
+def thread_500_sleep_1000(cluster, address):
     logging.info("Thread 2 %s: starting 500 requests", cluster)
     make_500_sequentially(cluster, address)
     logging.info("Thread 2 %s: sleeping 1 minute", cluster)
     time.sleep(60)
-    logging.info("Thread 2 %s: continuing 500 more requests", cluster)
-    make_500_sequentially(cluster, address)
-    logging.info("Thread 2 %s: finishing 500, sleep, 500 requests", cluster)
+    logging.info("Thread 2 %s: continuing 1000 more requests", cluster)
+    make_1000_sequentially(cluster, address)
+    logging.info("Thread 2 %s: finishing 500, sleep, 1000 requests", cluster)
         
 def wait_for_threads(threads):
     for index, thread in enumerate(threads):
@@ -34,7 +34,7 @@ def wait_for_threads(threads):
 def set_up_cluster_threads(threadList, cluster, address):
     logging.info("Creating %s threads",cluster)
     t1 = Thread(target=thread_1000, args=(cluster, address,))
-    t2 = Thread(target =thread_500_sleep_500, args=(cluster, address,))
+    t2 = Thread(target=thread_500_sleep_1000, args=(cluster, address,))
     threadList.append(t1)
     threadList.append(t2)
 
