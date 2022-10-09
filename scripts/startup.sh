@@ -34,4 +34,10 @@ sudo docker run -it query_maker $urlString
 
 #Display metrics
 cd ../metrics
-python3 metrics.py
+cp ../terraform-aws-flask/terraform.tfstate ./terraform.tfstate
+sudo docker build --tag metrics .
+sudo docker run -it -e AWS_DEFAULT_REGION=us-east-1 \
+-e AWS_ACCESS_KEY_ID=$aws_access_key_id \
+-e AWS_SECRET_ACCESS_KEY=$aws_secret_access_key \
+ -e AWS_SESSION_TOKEN=$aws_session_token \
+ metrics

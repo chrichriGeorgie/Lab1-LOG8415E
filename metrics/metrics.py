@@ -80,7 +80,7 @@ def show_results():
     period = 60 * 60 * 24
 
     # Reading the config files for info 
-    f = open('../terraform-aws-flask/terraform.tfstate', 'r')
+    f = open('terraform.tfstate', 'r')
     data = f.read()
     dict = json.loads(data)
 
