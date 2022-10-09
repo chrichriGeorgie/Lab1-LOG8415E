@@ -22,6 +22,7 @@ terraform apply -auto-approve
 cd ..
 
 #Sleeping to be sure every thing is deployed
+echo "Waiting 30 seconds for instances start up and Flask deployment"
 sleep 30
 
 #Docker Clients startup
@@ -37,6 +38,7 @@ sudo docker build --tag query_maker .
 sudo docker run -it query_maker $urlString
 
 #Sleeping to be sure every metrics is collected
+echo "Waiting 30 seconds for metrics collection"
 sleep 30
 
 #Display metrics
