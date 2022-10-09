@@ -2,6 +2,7 @@
 # lb.tf
 # Terraform configuration relative to load balancer and target groups
 
+# Declaring the two clusters
 resource "aws_lb_target_group" "cluster1-target" {
   name     = "tg-cl1"
   port     = 5000
@@ -16,6 +17,7 @@ resource "aws_lb_target_group" "cluster2-target" {
   vpc_id   = aws_vpc.vpc.id
 }
 
+# Attaching instances to the clusters
 resource "aws_lb_target_group_attachment" "attachments-cluster1-m4" {
   count            = length(aws_instance.m4_instance)
   target_group_arn = aws_lb_target_group.cluster1-target.arn
@@ -30,6 +32,7 @@ resource "aws_lb_target_group_attachment" "attachments-cluster2-t2" {
   port             = 5000
 }
 
+# Creating the load balancer and its listener
 resource "aws_lb" "load-balancer" {
   name               = "flask-load-balancer"
   internal           = false

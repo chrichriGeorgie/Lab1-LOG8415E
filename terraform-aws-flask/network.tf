@@ -21,6 +21,7 @@ resource "aws_subnet" "cluster2_subnet" {
   availability_zone = "us-east-1b"
 }
 
+# Virtual private cloud configuration
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.vpc.id
 }
@@ -53,7 +54,7 @@ resource "aws_route_table_association" "rt_a_cluster2" {
   route_table_id = aws_route_table.public_rt.id
 }
 
-
+# Security group rules to allow ssh and http on the load balancer from all addresses
 resource "aws_security_group" "flask_sg" {
   name   = "FLASK and SSH"
   vpc_id = aws_vpc.vpc.id
