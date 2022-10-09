@@ -80,7 +80,7 @@ def show_results():
     period = 60 * 60 * 24
 
     # Reading the config files for info 
-    f = open('../terraform-aws-flask/terraform.tfstate.backup', 'r')
+    f = open('../terraform-aws-flask/terraform.tfstate', 'r')
     data = f.read()
     dict = json.loads(data)
 
@@ -140,7 +140,7 @@ def show_results():
     # Cluster 1 print of average reponse time
     response_time1 = cw_wrapper.get_metric_statistics('AWS/ApplicationELB', 'TargetResponseTime', [{'Name': 'TargetGroup', 'Value': cluster1_id}, load_balancer_dimension], start, end, period, ['Average'])
     response_time_avg1 = "Unavailabe" if len(response_time1['Datapoints']) == 0 else str(response_time1['Datapoints'][0]['Average'])
-    print(f"Response time for cluster 1: {response_time_avg1}\n")
+    print(f"Average response time for cluster 1: {response_time_avg1}\n")
 
 
     # Cluster 1 print of CPU utilization of each machine
@@ -178,7 +178,7 @@ def show_results():
     # Cluster 2 print of average reponse time
     response_time2 = cw_wrapper.get_metric_statistics('AWS/ApplicationELB', 'TargetResponseTime', [{'Name': 'TargetGroup', 'Value': cluster2_id}, load_balancer_dimension], start, end, period, ['Average'])
     response_time_avg2 = "Unavailabe" if len(response_time2['Datapoints']) == 0 else str(response_time2['Datapoints'][0]['Average'])
-    print(f"Response time for cluster 2: {response_time_avg2}\n")
+    print(f"Average response time for cluster 2: {response_time_avg2}\n")
 
     # Cluster 2 print of CPU utilization of each machine
     for id in cluster2_instances_id:

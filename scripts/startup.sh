@@ -21,14 +21,15 @@ cd ..
 
 #Docker Clients startup
 cd ./bonus-query-scripts
-
 #We must first retrieve the load-balancer url to give to client container.
 echo Retrieving load balancer url :
 urlString=$( python3 url_retriever.py)
 echo $urlString
 
 #We then create the container and run it with $urlString as an argument
- sudo docker build --tag query_maker .
- sudo docker run -it query_maker $urlString
+sudo docker build --tag query_maker .
+sudo docker run -it query_maker $urlString
 
 #Display metrics
+cd ../metrics
+python3 metrics.py
