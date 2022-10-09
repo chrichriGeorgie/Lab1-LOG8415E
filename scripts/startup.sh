@@ -21,8 +21,12 @@ cd ../terraform-aws-flask
 terraform apply -auto-approve
 cd ..
 
+#Sleeping to be sure every thing is deployed
+sleep 30
+
 #Docker Clients startup
 cd ./bonus-query-scripts
+
 #We must first retrieve the load-balancer url to give to client container.
 echo Retrieving load balancer url :
 urlString=$( python3 url_retriever.py)
