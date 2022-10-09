@@ -36,6 +36,9 @@ echo $urlString
 sudo docker build --tag query_maker .
 sudo docker run -it query_maker $urlString
 
+#Sleeping to be sure every metrics is collected
+sleep 30
+
 #Display metrics
 cd ../metrics
 cp ../terraform-aws-flask/terraform.tfstate ./terraform.tfstate
