@@ -1,6 +1,8 @@
 #!/bin/bash
-#AWS credentials configuration
+#setting working directory
+cd "$(dirname "$0")"
 
+#AWS credentials configuration
 echo AWS Access Key ID:
 read aws_access_key_id
 

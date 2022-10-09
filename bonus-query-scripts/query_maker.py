@@ -13,18 +13,18 @@ def make_500_sequentially(cluster, address):
         requests.get('http://'+address+cluster)
 
 def thread_1000(cluster, address):
-    logging.info("Thread %s: starting 1000 requests", cluster)
+    logging.info("Thread 1 %s: starting 1000 requests", cluster)
     make_1000_sequentially(cluster, address)
-    logging.info("Thread %s: finishing 1000 requests", cluster)
+    logging.info("Thread 1 %s: finishing 1000 requests", cluster)
 
 def thread_500_sleep_500(cluster, address):
-    logging.info("Thread %s: starting 500 requests", cluster)
+    logging.info("Thread 2 %s: starting 500 requests", cluster)
     make_500_sequentially(cluster, address)
-    logging.info("Thread %s: sleeping 1 minute", cluster)
+    logging.info("Thread 2 %s: sleeping 1 minute", cluster)
     time.sleep(60)
-    logging.info("Thread %s: continuing 500 more requests", cluster)
+    logging.info("Thread 2 %s: continuing 500 more requests", cluster)
     make_500_sequentially(cluster, address)
-    logging.info("Thread %s: finishing 500, sleep, 500 requests", cluster)
+    logging.info("Thread 2 %s: finishing 500, sleep, 500 requests", cluster)
         
 def wait_for_threads(threads):
     for index, thread in enumerate(threads):
